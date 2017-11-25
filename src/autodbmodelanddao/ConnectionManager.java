@@ -18,7 +18,6 @@ public class ConnectionManager {
     private String DBUsername = "root";
     private String DBPassword = "triala";
     private Connection connection;
-   
     
     private static final String DRIVER_NAME = "com.mysql.jdbc.Driver";
 
@@ -28,6 +27,8 @@ public class ConnectionManager {
         this.DBHost = DBHost;
         this.DBPort = DBPort;
         this.DBName = DBName;
+        this.DBUsername = DBUsername;
+        this.DBPassword = DBPassword;
         try {
             Class.forName(DRIVER_NAME);
             try {

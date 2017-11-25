@@ -2,21 +2,21 @@
 public class UserApprovesLetter{
 
 	//Fields
-	private String id;
-	private String usersId;
-	private String letterId;
+	private int id;
+	private int usersId;
+	private int letterId;
 	private String createdAt;
 	private String updatedAt;
 
-	public void setId(String id){
+	public void setId(int id){
 		this.id = id
 	}
 
-	public void setUsersId(String usersId){
+	public void setUsersId(int usersId){
 		this.usersId = usersId
 	}
 
-	public void setLetterId(String letterId){
+	public void setLetterId(int letterId){
 		this.letterId = letterId
 	}
 
@@ -28,15 +28,15 @@ public class UserApprovesLetter{
 		this.updatedAt = updatedAt
 	}
 
-	public String getId(){
+	public int getId(){
 		return this.id
 	}
 
-	public String getUsersId(){
+	public int getUsersId(){
 		return this.usersId
 	}
 
-	public String getLetterId(){
+	public int getLetterId(){
 		return this.letterId
 	}
 
