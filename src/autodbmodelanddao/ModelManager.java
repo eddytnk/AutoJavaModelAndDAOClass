@@ -70,7 +70,7 @@ public class ModelManager {
             
         }
          table.generateJavaModelClass();
-        // table.generateJavaDAOClass(conMan);
+         table.generateJavaDAOClass();
          table.generateConnectionManager(conMan);
         }catch(SQLException ex){
             

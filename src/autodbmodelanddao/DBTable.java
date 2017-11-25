@@ -71,13 +71,13 @@ public class DBTable {
         String model = "import java.sql.*;\n\n";
         model += "\npublic class ConnectionManager{\n";
         model += "\n";
-        model += "\tprivate String DBHost = \""+conn.getDBHost()+"\";\n" +
-                    "\tprivate String DBPort = \""+conn.getDBPort()+"\";\n" +
-                    "\tprivate String DBName = \""+conn.getDBName()+"\";\n" +
-                    "\tprivate String DBUsername = \""+conn.getDBUsername()+"\";\n" +
-                    "\tprivate String DBPassword = \""+conn.getDBPassword()+"\";\n" +
+        model += "\tprivate static final String DBHost = \""+conn.getDBHost()+"\";\n" +
+                    "\tprivate static final String DBPort = \""+conn.getDBPort()+"\";\n" +
+                    "\tprivate static final String DBName = \""+conn.getDBName()+"\";\n" +
+                    "\tprivate static final String DBUsername = \""+conn.getDBUsername()+"\";\n" +
+                    "\tprivate static final String DBPassword = \""+conn.getDBPassword()+"\";\n" +
                     "\tprivate static final String DRIVER_NAME = \"com.mysql.jdbc.Driver\";\n\n";
-          model += "\tpublic Connection getConnection() {\n" +
+          model += "\tpublic static Connection getConnection() {\n" +
                     "\t\tConnection connection = null;\n" +
                     "\t\tString urlstring = \"jdbc:mysql://\"+this.DBHost+\":\"+this.DBPort+\"/\"+this.DBName+\"\";\n" +
                     "\t\ttry {\n" +
@@ -155,37 +155,44 @@ public class DBTable {
     /**
      * Generate a .java DAO class of a corresponding database table.
      */
-    public void generateJavaDAOClass( ConnectionManager conn){
+    public void generateJavaDAOClass(){
         
-        String className = this.genClassNameFormat(this.tableName)+"DAO";
+        String classNameModel = this.genClassNameFormat(this.tableName);
+        String classNameDAO = classNameModel+"DAO";
+        String attributeObj = this.genFieldName(this.tableName);
         String model = "";
-        model += "\npublic class "+className+"{\n";
+        model += "\npublic class "+classNameDAO+"{\n";
         model += "\n";
-        model += "\t//Fields\n";
-        /*
+        
+        String selectObj = "";
         for(DBAttribute attr:columns){
             String datatype = new DataTypeMap().getJavaDataType(attr.colDataType);
             String varName = this.genFieldName(attr.colName);
-            String methodInit = this.genClassNameFormat(attr.colName);
-            model += "\tprivate "+datatype+" "+varName+";\n";
-            
-            setters += "\tpublic void set"+methodInit+"("+datatype+" "+varName+"){\n";
-            setters += "\t\tthis."+varName+" = "+varName+"\n";
-            setters += "\t}\n\n";
-            
-            getters += "\tpublic "+datatype+" get"+methodInit+"(){\n";
-            getters += "\t\treturn this."+varName+"\n";
-            getters += "\t}\n\n";
+           // String methodInit = this.genClassNameFormat(attr.colName);
+            selectObj += "\t\t\t\t"+attributeObj+"."+varName+" = "+"rs.get"+datatype.substring(0, 1).toUpperCase()+datatype.substring(1)+"(\""+attr.colName+"\");\n";
+           
         }
-        
+        model += "\tpublic "+classNameModel+" loadAll(){\n" +
+                        "\t\tConnection connection = ConnectionManager.getConnection();\n" +
+                        "\t\t"+classNameModel+" "+attributeObj+" = new "+classNameModel+"()\n" +
+                        "\t\ttry{\n" +
+                        "\t\t\tStatement stmt = connection.prepareStatement();\n" +
+                        "\t\t\tResultSet rs = stmt.executeQuery(\"SELECT * FROM "+this.tableName+"\");\n" +
+                        "\t\t\twhile(rs.next()){\n" +
+                    
+                        selectObj+
+                     
+                        "\t\t\t}\n" +
+                        "\t\t}catch(SQLException ex){\n" +
+                        "\t\t\t//ex.printStackTrace();\n" +
+                        "\t\t}\n" +
+                        "\t\treturn "+attributeObj+"\n" +
+                        "\t}\n";
         model += "\n";
-        model += setters+getters;
         model += "\n";
         model += "}";
         
-        */
-        
-        String fileName = className+".java";
+        String fileName = classNameDAO+".java";
         try{
             PrintWriter writer = new PrintWriter(fileName, "UTF-8");
             writer.println(model);
