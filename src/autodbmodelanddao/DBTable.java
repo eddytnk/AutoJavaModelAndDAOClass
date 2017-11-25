@@ -63,9 +63,53 @@ public class DBTable {
         }
         return classFieldName;
     }
+    /**
+     * Generate the ConnectionManager class to manage open connection string
+     * @param conn 
+     */
+    public void generateConnectionManager(ConnectionManager conn){
+        String model = "import java.sql.*;\n\n";
+        model += "\npublic class ConnectionManager{\n";
+        model += "\n";
+        model += "\tprivate String DBHost = \""+conn.getDBHost()+"\";\n" +
+                    "\tprivate String DBPort = \""+conn.getDBPort()+"\";\n" +
+                    "\tprivate String DBName = \""+conn.getDBName()+"\";\n" +
+                    "\tprivate String DBUsername = \""+conn.getDBUsername()+"\";\n" +
+                    "\tprivate String DBPassword = \""+conn.getDBPassword()+"\";\n" +
+                    "\tprivate static final String DRIVER_NAME = \"com.mysql.jdbc.Driver\";\n\n";
+          model += "\tpublic Connection getConnection() {\n" +
+                    "\t\tConnection connection = null;\n" +
+                    "\t\tString urlstring = \"jdbc:mysql://\"+this.DBHost+\":\"+this.DBPort+\"/\"+this.DBName+\"\";\n" +
+                    "\t\ttry {\n" +
+                    "\t\t\tClass.forName(DRIVER_NAME);\n" +
+                    "\t\t\ttry {\n" +
+                    "\t\t\t\tconnection = DriverManager.getConnection(urlstring, this.DBUsername, this.DBPassword);\n" +
+                    "\t\t\t} catch (SQLException ex) {\n" +
+                    "\t\t\t\t//exception:\n" +
+                    "\t\t\t\tSystem.out.println(\"Failed to create the database connection.\");\n" +
+                    "\t\t\t}\n" +
+                    "\t\t}catch (ClassNotFoundException ex) {\n" +
+                    "\t\t\t//exception\n" +
+                    "\t\t\tSystem.out.println(\"Driver not found.\");\n" +
+                    "\t\t}\n" +
+                    "\t\treturn connection;\n" +
+                    "\t}";
+          model += "\n";
+          model += "}";
+          
+           String fileName = "ConnectionManager.java";
+        try{
+            PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+            writer.println(model);
+            writer.close();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
     
     /**
-     * Generate a .java Model call of a corresponding database table.
+     * Generate a .java Model class of a corresponding database table.
      * Generate private fields with getter and setter methods
      */
     public void generateJavaModelClass(){
@@ -108,6 +152,50 @@ public class DBTable {
     }
     
     
+    /**
+     * Generate a .java DAO class of a corresponding database table.
+     */
+    public void generateJavaDAOClass( ConnectionManager conn){
+        
+        String className = this.genClassNameFormat(this.tableName)+"DAO";
+        String model = "";
+        model += "\npublic class "+className+"{\n";
+        model += "\n";
+        model += "\t//Fields\n";
+        /*
+        for(DBAttribute attr:columns){
+            String datatype = new DataTypeMap().getJavaDataType(attr.colDataType);
+            String varName = this.genFieldName(attr.colName);
+            String methodInit = this.genClassNameFormat(attr.colName);
+            model += "\tprivate "+datatype+" "+varName+";\n";
+            
+            setters += "\tpublic void set"+methodInit+"("+datatype+" "+varName+"){\n";
+            setters += "\t\tthis."+varName+" = "+varName+"\n";
+            setters += "\t}\n\n";
+            
+            getters += "\tpublic "+datatype+" get"+methodInit+"(){\n";
+            getters += "\t\treturn this."+varName+"\n";
+            getters += "\t}\n\n";
+        }
+        
+        model += "\n";
+        model += setters+getters;
+        model += "\n";
+        model += "}";
+        
+        */
+        
+        String fileName = className+".java";
+        try{
+            PrintWriter writer = new PrintWriter(fileName, "UTF-8");
+            writer.println(model);
+            writer.close();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    
     
 }
 
@@ -120,61 +208,74 @@ class DataTypeMap{
     public String getJavaDataType(String sqlDataType){
         ArrayList<HashMap> list = new ArrayList<HashMap>();
         //Numeric datatypes
-        HashMap map = new HashMap();
-        map.javaDataType = "int";
-        map.sqlDataType = "int";
-        list.add(map);
+        HashMap map1 = new HashMap();
+        map1.javaDataType = "int";
+        map1.sqlDataType = "int";
+        list.add(map1);
         
-        map.javaDataType = "float";
-        map.sqlDataType = "float";
-        list.add(map);
+        HashMap map2 = new HashMap();
+        map2.javaDataType = "float";
+        map2.sqlDataType = "float";
+        list.add(map2);
         
-        map.javaDataType = "double";
-        map.sqlDataType = "double";
-        list.add(map);
+        HashMap map3 = new HashMap();
+        map3.javaDataType = "double";
+        map3.sqlDataType = "double";
+        list.add(map3);
         
-        map.javaDataType = "boolean";
-        map.sqlDataType = "boolean";
-        list.add(map);
+        HashMap map4 = new HashMap();
+        map4.javaDataType = "boolean";
+        map4.sqlDataType = "boolean";
+        list.add(map4);
         
-        map.javaDataType = "short";
-        map.sqlDataType = "tinyint";
-        list.add(map);
+        HashMap map5 = new HashMap();
+        map5.javaDataType = "short";
+        map5.sqlDataType = "tinyint";
+        list.add(map5);
         
-        map.javaDataType = "long";
-        map.sqlDataType = "bigint";
-        list.add(map);
+        HashMap map6 = new HashMap();
+        map6.javaDataType = "long";
+        map6.sqlDataType = "bigint";
+        list.add(map6);
         
-        map.javaDataType = "int";
-        map.sqlDataType = "smallint";
-        list.add(map);
+        HashMap map7 = new HashMap();
+        map7.javaDataType = "int";
+        map7.sqlDataType = "smallint";
+        list.add(map7);
         
-        map.javaDataType = "int";
-        map.sqlDataType = "mediumint";
-        list.add(map);
+        HashMap map8 = new HashMap();
+        map8.javaDataType = "int";
+        map8.sqlDataType = "mediumint";
+        list.add(map8);
         
-        map.javaDataType = "float";
-        map.sqlDataType = "decimal";
-        list.add(map);
+        HashMap map9 = new HashMap();
+        map9.javaDataType = "float";
+        map9.sqlDataType = "decimal";
+        list.add(map9);
         
-        map.javaDataType = "double";
-        map.sqlDataType = "real";
-        list.add(map);
+        HashMap map10 = new HashMap();
+        map10.javaDataType = "double";
+        map10.sqlDataType = "real";
+        list.add(map10);
         
-        map.javaDataType = "short";
-        map.sqlDataType = "bit";
-        list.add(map);
+        HashMap map11 = new HashMap();
+        map11.javaDataType = "short";
+        map11.sqlDataType = "bit";
+        list.add(map11);
         
-        map.javaDataType = "long";
-        map.sqlDataType = "serial";
-        list.add(map);
+        HashMap map12 = new HashMap();
+        map12.javaDataType = "long";
+        map12.sqlDataType = "serial";
+        list.add(map12);
         
         //All the other will be represented as String
         String javaDataType = "String";
         for(HashMap m:list){
             if(m.sqlDataType.equalsIgnoreCase(sqlDataType)){
                 javaDataType = m.javaDataType;
+                break;
             }
+            System.out.println(m.javaDataType);
         }
         return javaDataType;
     }
