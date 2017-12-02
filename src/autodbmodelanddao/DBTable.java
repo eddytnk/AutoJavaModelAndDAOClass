@@ -164,20 +164,45 @@ public class DBTable {
         model += "\npublic class "+classNameDAO+"{\n";
         model += "\n";
         
+        int cnt = 0,count=0;
         String selectObj = "";
+        String insertObj = "INSERT INTO "+this.tableName+"(";
+        String insertVar = "";
+        selectObj += "\t\t\t\t"+classNameModel+" "+attributeObj+" = new "+classNameModel+"()\n";
         for(DBAttribute attr:columns){
             String datatype = new DataTypeMap().getJavaDataType(attr.colDataType);
-            String varName = this.genFieldName(attr.colName);
-           // String methodInit = this.genClassNameFormat(attr.colName);
-            selectObj += "\t\t\t\t"+attributeObj+"."+varName+" = "+"rs.get"+datatype.substring(0, 1).toUpperCase()+datatype.substring(1)+"(\""+attr.colName+"\");\n";
-           
+           // String varName = this.genFieldName(attr.colName);
+            String methodInit = this.genClassNameFormat(attr.colName);
+            selectObj += "\t\t\t\t"+attributeObj+".set"+methodInit+"("+"rs.get"+datatype.substring(0, 1).toUpperCase()+datatype.substring(1)+"(\""+attr.colName+"\"));\n";
+            
+            
+            if(!attr.priKeyCol){
+                insertVar += "\t\t\tstmt.set"+datatype.substring(0, 1).toUpperCase()+datatype.substring(1)+"("+(count+1)+","+attributeObj+".get"+methodInit+"());\n";
+                insertObj += attr.colName;
+                if((columns.size()-1)!=cnt){
+                    insertObj += ",";
+                }
+                count++;
+            }
+            cnt++;
         }
-        model += "\tpublic "+classNameModel+" loadAll(){\n" +
+        selectObj += "\t\t\t\tlist.add("+attributeObj+")\n";
+        
+        insertObj += ") VALUES (";
+        for(int i = 0; i<count;i++){
+            insertObj += "?";
+            if(i != (count-1)){
+                insertObj += ",";
+            }
+        }
+        insertObj += ")";
+         
+        model += "\tpublic ArrayList<"+classNameModel+"> loadAll(){\n" +
                         "\t\tConnection connection = ConnectionManager.getConnection();\n" +
-                        "\t\t"+classNameModel+" "+attributeObj+" = new "+classNameModel+"()\n" +
+                        "\t\tArrayList<"+classNameModel+"> list = new ArrayList()\n"+
                         "\t\ttry{\n" +
-                        "\t\t\tStatement stmt = connection.prepareStatement();\n" +
-                        "\t\t\tResultSet rs = stmt.executeQuery(\"SELECT * FROM "+this.tableName+"\");\n" +
+                        "\t\t\tPreparedStatement stmt = connection.prepareStatement(\"SELECT * FROM "+this.tableName+"\");\n" +
+                        "\t\t\tResultSet rs = stmt.execute();\n" +
                         "\t\t\twhile(rs.next()){\n" +
                     
                         selectObj+
@@ -186,7 +211,24 @@ public class DBTable {
                         "\t\t}catch(SQLException ex){\n" +
                         "\t\t\t//ex.printStackTrace();\n" +
                         "\t\t}\n" +
-                        "\t\treturn "+attributeObj+"\n" +
+                        "\t\treturn list\n" +
+                        "\t}\n";
+        model += "\n";
+        model += "\n";
+        
+        model += "\tpublic boolean insert("+classNameModel+" "+attributeObj+"){\n" +
+                        "\t\tConnection connection = ConnectionManager.getConnection();\n" +
+                        "\t\tboolean insert = false;\n"+
+                        "\t\ttry{\n" +
+                        "\t\t\tPreparedStatement  stmt = connection.prepareStatement(\""+insertObj+"\");\n" +
+                         insertVar+
+                        "\t\t\tstmt.execute();\n" +
+                        "\t\t\tinsert = true\n"+
+                        "\t\t}catch(SQLException ex){\n" +
+                        "\t\t\t//ex.printStackTrace();\n" +
+                        "\t\t\tinsert = false\n"+
+                        "\t\t}\n" +
+                        "\t\treturn insert\n" +
                         "\t}\n";
         model += "\n";
         model += "\n";

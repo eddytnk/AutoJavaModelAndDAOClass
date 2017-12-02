@@ -29,6 +29,7 @@ public class ConnectionManager {
         this.DBName = DBName;
         this.DBUsername = DBUsername;
         this.DBPassword = DBPassword;
+       
         try {
             Class.forName(DRIVER_NAME);
             try {
